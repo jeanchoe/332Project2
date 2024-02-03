@@ -3,49 +3,97 @@ package datastructures.worklists;
 import cse332.exceptions.NotYetImplementedException;
 import cse332.interfaces.worklists.FixedSizeFIFOWorkList;
 
+import java.util.NoSuchElementException;
+
 /**
  * See cse332/interfaces/worklists/FixedSizeFIFOWorkList.java
  * for method specifications.
  */
 public class CircularArrayFIFOQueue<E> extends FixedSizeFIFOWorkList<E> {
+    private E[] array;
+    private int front;
+    private int back;
     public CircularArrayFIFOQueue(int capacity) {
         super(capacity);
-        throw new NotYetImplementedException();
+        this.array = (E[]) new Object[capacity];
+        this.front = 0;
+        this.back = 0;
     }
 
     @Override
     public void add(E work) {
-        throw new NotYetImplementedException();
+        if (size() == array.length) {
+            throw new IllegalStateException();
+        }
+
+        array[back % array.length] = work;
+        back++;
     }
 
     @Override
     public E peek() {
-        throw new NotYetImplementedException();
+        if (array[front % array.length] == null) {
+            throw new NoSuchElementException("Empty");
+        }
+
+        return array[front % array.length];
     }
 
     @Override
     public E peek(int i) {
-        throw new NotYetImplementedException();
-    }
+        if (array[front % array.length] == null) {
+            throw new NoSuchElementException("Empty");
+        }
 
+        if (i < 0 || i >= array.length) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        int index = (front + i) % array.length;
+        return array[index];
+    }
     @Override
     public E next() {
-        throw new NotYetImplementedException();
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+
+        E data = array[front % array.length];
+        array[front % array.length] = null;
+        front++;
+        if (size() == 0) {
+            back = 0;
+            front = 0;
+        }
+        return data;
     }
+
 
     @Override
     public void update(int i, E value) {
-        throw new NotYetImplementedException();
+        if (array[front % array.length] == null) {
+            throw new NoSuchElementException();
+        }
+
+        if (i < 0 || i >= size()) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        int index = (front + i) % array.length;
+        array[index] = value;
     }
+
 
     @Override
     public int size() {
-        throw new NotYetImplementedException();
+        return back - front;
     }
 
     @Override
     public void clear() {
-        throw new NotYetImplementedException();
+        this.array = (E[]) new Object[array.length];
+        this.front = 0;
+        this.back = 0;
     }
 
     @Override
