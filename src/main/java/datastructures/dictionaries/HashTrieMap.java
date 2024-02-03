@@ -1,3 +1,5 @@
+
+
 package datastructures.dictionaries;
 
 import cse332.exceptions.NotYetImplementedException;
@@ -38,26 +40,87 @@ public class HashTrieMap<A extends Comparable<A>, K extends BString<A>, V> exten
 
     @Override
     public V insert(K key, V value) {
-        throw new NotYetImplementedException();
+        HashTrieNode curr = (HashTrieNode) this.root;
+
+        if(key == null || value == null) {
+            throw new IllegalArgumentException();
+        } else {
+            for (A letter : key) {
+                if (!curr.pointers.containsKey(letter)) {
+                    curr.pointers.put(letter, new HashTrieNode());
+                }
+                curr = curr.pointers.get(letter);
+            }
+            V oldValue = curr.value;
+            curr.value = value;
+            size++;
+            return oldValue;
+        }
     }
 
     @Override
     public V find(K key) {
-        throw new NotYetImplementedException();
+        HashTrieNode curr = (HashTrieNode) this.root;
+        if(key == null){
+            throw new IllegalArgumentException();
+        } else {
+            for (A letter : key) {
+                if (!curr.pointers.containsKey(letter)) {
+                    return null;
+                }
+                curr = curr.pointers.get(letter);
+            }
+            return curr.value;
+        }
     }
 
     @Override
     public boolean findPrefix(K key) {
-        throw new NotYetImplementedException();
+        HashTrieNode curr = (HashTrieNode) this.root;
+        if(key == null){
+            throw new IllegalArgumentException();
+        } else {
+            for (A letter : key) {
+                if (!curr.pointers.containsKey(letter)) {
+                    return false;
+                }
+                curr = curr.pointers.get(letter);
+            }
+            return true;
+        }
     }
-
     @Override
     public void delete(K key) {
-        throw new NotYetImplementedException();
+        if(key == null){
+            throw new IllegalArgumentException();
+        } else {
+            delRec((HashTrieNode) this.root, key.iterator(), null);
+        }
+    }
+
+    private boolean delRec(HashTrieNode node, Iterator<A> initialKey, HashTrieNode branch) {
+        if (!initialKey.hasNext()) {
+            if (node != null) {
+                node.value = null;
+                return node.pointers.isEmpty() && node.value == null;
+            }
+            return false;
+        }
+
+        A letter = initialKey.next();
+        HashTrieNode leaf = node.pointers.get(letter);
+
+        if (leaf != null && delRec(leaf, initialKey, node)) {
+            node.pointers.remove(letter);
+            return node.pointers.isEmpty() && node.value == null;
+        }
+        return false;
     }
 
     @Override
     public void clear() {
-        throw new NotYetImplementedException();
+        this.root = new HashTrieNode();
     }
 }
+
+
