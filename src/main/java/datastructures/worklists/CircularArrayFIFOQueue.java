@@ -3,103 +3,110 @@ package datastructures.worklists;
 import cse332.exceptions.NotYetImplementedException;
 import cse332.interfaces.worklists.FixedSizeFIFOWorkList;
 
+import javax.swing.*;
 import java.util.NoSuchElementException;
 
 /**
  * See cse332/interfaces/worklists/FixedSizeFIFOWorkList.java
  * for method specifications.
  */
-public class CircularArrayFIFOQueue<E> extends FixedSizeFIFOWorkList<E> {
-    private E[] array;
-    private int front;
-    private int back;
+public class CircularArrayFIFOQueue<E extends Comparable<E>> extends FixedSizeFIFOWorkList<E> {
+
+    private E[] elements;
+    private int totalSize;
+    private int headIndex;
+    private int tailIndex;
+
+    @SuppressWarnings("unchecked")
     public CircularArrayFIFOQueue(int capacity) {
         super(capacity);
-        this.array = (E[]) new Object[capacity];
-        this.front = 0;
-        this.back = 0;
+        elements = (E[]) new Comparable[capacity];
+        totalSize = 0;
+        headIndex = -1;
+        tailIndex = -1;
     }
 
     @Override
-    public void add(E work) {
-        if (size() == array.length) {
+    public void add(E element) {
+        if(isFull())
             throw new IllegalStateException();
-        }
 
-        array[back % array.length] = work;
-        back++;
+        if (!hasWork()){
+            headIndex = 0;
+            tailIndex = 0;
+        }
+        else
+            tailIndex = (tailIndex + 1) % elements.length;
+
+        elements[tailIndex] = element;
+        totalSize++;
     }
 
     @Override
     public E peek() {
-        if (array[front % array.length] == null) {
-            throw new NoSuchElementException("Empty");
-        }
-
-        return array[front % array.length];
+        return peek(0);
     }
 
     @Override
-    public E peek(int i) {
-        if (array[front % array.length] == null) {
-            throw new NoSuchElementException("Empty");
+    public E peek(int index) {
+        if(!hasWork()){
+            throw new NoSuchElementException();
         }
-
-        if (i < 0 || i >= array.length) {
+        else if(index < 0 || index >= size()){
             throw new IndexOutOfBoundsException();
         }
-
-        int index = (front + i) % array.length;
-        return array[index];
+        int position = (headIndex + index) % elements.length;
+        return elements[position];
     }
+
     @Override
     public E next() {
-        if (size() == 0) {
+        if(!hasWork())
             throw new NoSuchElementException();
-        }
 
-        E data = array[front % array.length];
-        array[front % array.length] = null;
-        front++;
-        if (size() == 0) {
-            back = 0;
-            front = 0;
-        }
-        return data;
+        E element = elements[headIndex];
+        headIndex = (headIndex + 1) % elements.length;
+        totalSize--;
+        return element;
+
     }
-
 
     @Override
-    public void update(int i, E value) {
-        if (array[front % array.length] == null) {
+    public void update(int index, E value) {
+        if(!hasWork())
             throw new NoSuchElementException();
-        }
-
-        if (i < 0 || i >= size()) {
+        if(index < 0 || index >= size())
             throw new IndexOutOfBoundsException();
-        }
 
-        int index = (front + i) % array.length;
-        array[index] = value;
+        elements[(headIndex + index) % capacity()] = value;
     }
-
 
     @Override
     public int size() {
-        return back - front;
+        return this.totalSize;
     }
 
     @Override
     public void clear() {
-        this.array = (E[]) new Object[array.length];
-        this.front = 0;
-        this.back = 0;
+        headIndex = 0;
+        tailIndex = 0;
+        totalSize = 0;
     }
 
     @Override
     public int compareTo(FixedSizeFIFOWorkList<E> other) {
-        // You will implement this method in project 2. Leave this method unchanged for project 1.
-        throw new NotYetImplementedException();
+
+        int curr = 0;
+
+        while(curr < this.size() && curr < other.size()){
+            if(this.peek(curr).compareTo(other.peek(curr)) != 0)
+                return this.peek(curr).compareTo(other.peek(curr));
+
+            curr++;
+        }
+
+        return this.size() - other.size();
+
     }
 
     @Override
@@ -111,18 +118,33 @@ public class CircularArrayFIFOQueue<E> extends FixedSizeFIFOWorkList<E> {
         } else if (!(obj instanceof FixedSizeFIFOWorkList<?>)) {
             return false;
         } else {
-            // Uncomment the line below for p2 when you implement equals
-            // FixedSizeFIFOWorkList<E> other = (FixedSizeFIFOWorkList<E>) obj;
 
-            // Your code goes here
+            FixedSizeFIFOWorkList<E> list2 = (FixedSizeFIFOWorkList<E>) obj;
 
-            throw new NotYetImplementedException();
+            // Check if they are the same size
+            if(this.size() != list2.size())
+                return false;
+
+            // Check all elements are the same
+            for(int i = 0; i < this.size(); i++){
+                if(this.peek(i) == list2.peek(i)){
+                    return true;
+                } else {
+                    return false;
+                }
+
+            }
+
+            return true;
         }
     }
 
     @Override
     public int hashCode() {
-        // You will implement this method in project 2. Leave this method unchanged for project 1.
-        throw new NotYetImplementedException();
+        int result = this.peek().hashCode();
+        for(int i = 1; i < this.size(); i++){
+            result*= 37 + peek(i).hashCode();
+        }
+        return result;
     }
 }
