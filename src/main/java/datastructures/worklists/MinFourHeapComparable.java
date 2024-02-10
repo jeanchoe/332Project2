@@ -12,84 +12,93 @@ import java.util.NoSuchElementException;
 public class MinFourHeapComparable<E extends Comparable<E>> extends PriorityWorkList<E> {
     /* Do not change the name of this field; the tests rely on it to work correctly. */
     private E[] data;
-
     private int size;
+    private int capacity;
 
     public MinFourHeapComparable() {
-        data = (E[]) new Comparable[10];
-
-        size = 0;
+        this.size = 0;
+        this.capacity = 10;
+        this.data = (E[]) new Comparable[capacity];
     }
 
     @Override
     public boolean hasWork() {
-        return size > 0;
+        if(size>0) return true;
+        return false;
     }
 
     @Override
     public void add(E work) {
-        if(size == this.data.length){
-            E[] newArray = (E[]) new Comparable [this.data.length * 2];
-            for(int i = 0; i < this.data.length; i++){
-                newArray[i] = this.data[i];
+        if (size==capacity){
+            E[] datatemp= (E[]) new Comparable[capacity*2];
+            for (int i = 0; i <this.size ; i++) {
+                datatemp[i] = data[i];
             }
-            this.data = newArray;
+            this.data = (E[]) new Comparable[capacity*2];
+            this.data=datatemp;
+            this.capacity*=2;
         }
-        int length = size;
-
-        while (work.compareTo(this.data[(length-1) / 4]) < 0 && length > 0){
-            this.data[length] = this.data[(length - 1) / 4];
-            length = (length - 1)/4;
-
+        this.data[size]=work;
+        this.size++;
+        int index = size-1;
+        int parent = (int) Math.floor((index-1)/4);
+        while(data[index].compareTo(data[parent])<0){
+            E temp = data[parent];
+            data[parent] = data[index];
+            data[index] = temp;
+            index = parent;
+            parent = (int) Math.floor((index-1)/4);
         }
-        size ++;
-        this.data[length] = work;
     }
 
     @Override
     public E peek() {
-        if(!hasWork()){
-            throw new NoSuchElementException();
-        }
-        return data[0];
+        if (!hasWork()) throw new NoSuchElementException();
+        return this.data[0];
     }
 
     @Override
     public E next() {
-        if(!hasWork()){
-            throw new NoSuchElementException();
-        }
-        E next = data[0];
-        E element = data[size - 1];
-        int start = 0;
-
-        while(size - 1 > start * 4){
-            int end = 4 * start + 1;
-            for(int i = (4 * start) + 2; i < (4 * start) + 5; i++){
-                if (i < size && data[i].compareTo(data[end]) < 0) {
-                    end = i;
-                }
-            }
-            if(data[end].compareTo(element) < 0){
-                data[start] = data[end];
-                start = end;
-            } else {
-                break;
-            }
-        }
-        data[start] = element;
+        if (!hasWork()) throw new NoSuchElementException();
+        E val= this.data[0];
+        data[0] = data[size-1];
         size--;
-        return next;
+        percolateDown(0);
+        return val;
+    }
+
+    private void percolateDown(int currIndex){
+        if(4*currIndex+1 > this.size){
+            return;
+        }
+        int minChildIndex = currIndex*4+1;
+        for(int i = 2; i<=4 && currIndex*4+i < this.size; i++){
+            if (data[currIndex*4+i].compareTo(data[minChildIndex]) < 0)
+            {
+                minChildIndex = currIndex*4+i;
+            }
+        }
+        if(data[minChildIndex].compareTo(data[currIndex])>0){
+            return;
+        }
+
+        E temp = data[minChildIndex];
+        data[minChildIndex] = data[currIndex];
+        data[currIndex] = temp;
+        percolateDown(minChildIndex);
     }
 
     @Override
     public int size() {
+
         return this.size;
     }
 
     @Override
     public void clear() {
-        size = 0;
-        data = (E[]) new Comparable[10];
+        E[] temp = (E[]) new Comparable[capacity];
+        this.data=temp;
+        this.size=0;
+
     }
 }
