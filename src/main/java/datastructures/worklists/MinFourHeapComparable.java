@@ -23,74 +23,78 @@ public class MinFourHeapComparable<E extends Comparable<E>> extends PriorityWork
 
     @Override
     public boolean hasWork() {
-        if(size>0) return true;
+        if (0 < size){
+            return true;
+    }
         return false;
     }
 
     @Override
     public void add(E work) {
-        if (size==capacity){
-            E[] datatemp= (E[]) new Comparable[capacity*2];
-            for (int i = 0; i <this.size ; i++) {
-                datatemp[i] = data[i];
+        if (capacity == size){
+            E[] storeData= (E[]) new Comparable[capacity*2];
+            for (int i = 0; i < this.size; i++) {
+                storeData[i] = data[i];
             }
             this.data = (E[]) new Comparable[capacity*2];
-            this.data=datatemp;
-            this.capacity*=2;
+            this.data = storeData;
+            this.capacity *= 2;
         }
         this.data[size]=work;
         this.size++;
-        int index = size-1;
-        int parent = (int) Math.floor((index-1)/4);
-        while(data[index].compareTo(data[parent])<0){
-            E temp = data[parent];
-            data[parent] = data[index];
+        int index = size - 1;
+        int start = (int) Math.floor((index-1)/4);
+        while(data[index].compareTo(data[start])<0){
+            E temp = data[start];
+            data[start] = data[index];
             data[index] = temp;
-            index = parent;
-            parent = (int) Math.floor((index-1)/4);
+            index = start;
+            start = (int) Math.floor((index-1)/4);
         }
     }
 
     @Override
     public E peek() {
-        if (!hasWork()) throw new NoSuchElementException();
+        if (!hasWork()) {
+            throw new NoSuchElementException();
+        }
         return this.data[0];
     }
 
     @Override
     public E next() {
-        if (!hasWork()) throw new NoSuchElementException();
-        E val= this.data[0];
+        if (!hasWork()) {
+            throw new NoSuchElementException();
+        }
+        E value= this.data[0];
         data[0] = data[size-1];
         size--;
         percolateDown(0);
-        return val;
+        return value;
     }
 
     private void percolateDown(int currIndex){
-        if(4*currIndex+1 > this.size){
+        int minIndex = currIndex * 4 + 1;
+        if(this.size < 4*currIndex+1){
             return;
         }
-        int minChildIndex = currIndex*4+1;
-        for(int i = 2; i<=4 && currIndex*4+i < this.size; i++){
-            if (data[currIndex*4+i].compareTo(data[minChildIndex]) < 0)
+        for(int i = 2; i<=4 && currIndex * 4+i < this.size; i++){
+            if (data[currIndex*4+i].compareTo(data[minIndex]) < 0)
             {
-                minChildIndex = currIndex*4+i;
+                minIndex = currIndex*4+i;
             }
         }
-        if(data[minChildIndex].compareTo(data[currIndex])>0){
+        if(data[minIndex].compareTo(data[currIndex])>0){
             return;
         }
-
-        E temp = data[minChildIndex];
-        data[minChildIndex] = data[currIndex];
+        E temp = data[minIndex];
+        data[minIndex] = data[currIndex];
         data[currIndex] = temp;
-        percolateDown(minChildIndex);
+        percolateDown(minIndex);
     }
 
     @Override
     public int size() {
-
         return this.size;
     }
 
