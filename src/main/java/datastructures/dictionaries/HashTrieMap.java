@@ -1,16 +1,12 @@
 
 
+
 package datastructures.dictionaries;
 
-import cse332.datastructures.containers.Item;
 import cse332.interfaces.trie.TrieMap;
 import cse332.types.BString;
-import datastructures.worklists.ArrayStack;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 /**
