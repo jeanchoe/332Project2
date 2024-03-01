@@ -26,7 +26,7 @@ import cse332.datastructures.trees.BinarySearchTree;
  * 7. The internal structure of your AVLTree (from this.root to the leaves) must be correct
  */
 
-public class AVLTree<K extends Comparable<K>, V> extends BinarySearchTree<K, V> {
+public class AVLTree<K extends Comparable<? super K>, V> extends BinarySearchTree<K, V> {
 
     private static final int BALANCE_THRESHOLD = 1;
 
